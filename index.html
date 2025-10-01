@@ -795,7 +795,10 @@
             },
             student2: {
                 name: "عبد الله البسام",
-                memorization: { surah: "يس", from: "28", to: "33" },
+                memorization: [
+                    { surah: "يس", from: "28", to: "33" },
+                    { surah: "الممتحنة", from: "10", to: "13" }
+                ],
                 review: { surah: "جزء عم", from: "البلد", to: "الفجر" },
                 notes: "حفظ جيد ومراجعة منتظمة"
             },
@@ -835,24 +838,48 @@
             // Student 2
             document.getElementById('student2Name').textContent = studentsData.student2.name;
             
-            // Handle Student 2 Memorization
-            if (!studentsData.student2.memorization.surah || 
-                studentsData.student2.memorization.from === "0" || 
-                studentsData.student2.memorization.to === "0") {
-                document.getElementById('student2MemorizationDisplay').innerHTML = `
-                    <div class="no-memorization">
-                        <i class="fas fa-pause-circle"></i><br>
-                        لا يوجد حفظ جديد اليوم
-                    </div>
-                `;
+            // Handle Student 2 Multiple Memorizations
+            if (Array.isArray(studentsData.student2.memorization)) {
+                // عرض حفظين أو أكثر
+                let memorizationHTML = '';
+                studentsData.student2.memorization.forEach((mem, index) => {
+                    if (mem.surah && mem.from !== "0" && mem.to !== "0") {
+                        memorizationHTML += `
+                            <div style="margin-bottom: ${index < studentsData.student2.memorization.length - 1 ? '15px' : '0'};">
+                                سورة <span class="surah-name">${mem.surah}</span><br>
+                                من الآية ${mem.from} إلى الآية ${mem.to}
+                            </div>
+                        `;
+                    }
+                });
+                
+                if (memorizationHTML === '') {
+                    document.getElementById('student2MemorizationDisplay').innerHTML = `
+                        <div class="no-memorization">
+                            <i class="fas fa-pause-circle"></i><br>
+                            لا يوجد حفظ جديد اليوم
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('student2MemorizationDisplay').innerHTML = memorizationHTML;
+                }
             } else {
-                document.getElementById('student2MemorizationDisplay').innerHTML = `
-                    سورة <span class="surah-name">${studentsData.student2.memorization.surah}</span><br>
-                    من الآية ${studentsData.student2.memorization.from} إلى الآية ${studentsData.student2.memorization.to}
-                `;
-                document.getElementById('student2MemorizationSurah').textContent = studentsData.student2.memorization.surah;
-                document.getElementById('student2MemorizationFrom').textContent = studentsData.student2.memorization.from;
-                document.getElementById('student2MemorizationTo').textContent = studentsData.student2.memorization.to;
+                // حفظ واحد فقط (النظام القديم)
+                if (!studentsData.student2.memorization.surah || 
+                    studentsData.student2.memorization.from === "0" || 
+                    studentsData.student2.memorization.to === "0") {
+                    document.getElementById('student2MemorizationDisplay').innerHTML = `
+                        <div class="no-memorization">
+                            <i class="fas fa-pause-circle"></i><br>
+                            لا يوجد حفظ جديد اليوم
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('student2MemorizationDisplay').innerHTML = `
+                        سورة <span class="surah-name">${studentsData.student2.memorization.surah}</span><br>
+                        من الآية ${studentsData.student2.memorization.from} إلى الآية ${studentsData.student2.memorization.to}
+                    `;
+                }
             }
             
             document.getElementById('student2ReviewSurah').textContent = studentsData.student2.review.surah;
