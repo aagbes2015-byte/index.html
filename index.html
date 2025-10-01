@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقرير الحفظ اليومي - طلاب القرآن الكريم</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-dark: #1a365d;
+            --primary-blue: #2d3748;
+            --accent-gold: #d69e2e;
+            --accent-emerald: #38a169;
+            --accent-navy: #2c5282;
+            --accent-teal: #319795;
+            --soft-gray: #f7fafc;
+            --warm-white: #fffffe;
+            --danger-red: #e53e3e;
+            --success-green: #38a169;
+        }
+
+        .dark {
+            --warm-white: #1a202c;
+            --soft-gray: #2d3748;
+            --primary-dark: #2b6cb0;
+            --primary-blue: #3182ce;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Kufi Arabic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a365d 0%, #2c5282 30%, #2d3748 60%, #1a202c 100%);
+            min-height: 100vh;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .dark body {
+            background: linear-gradient(135deg, #0f1419 0%, #1a202c 30%, #2d3748 60%, #4a5568 100%);
+        }
+
+        .fab-container {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .fab {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .fab-print {
+            background: linear-gradient(135deg, var(--accent-emerald), var(--accent-teal));
+        }
+
+        .fab-refresh {
+            background: linear-gradient(135deg, var(--accent-gold), #ecc94b);
+        }
+
+        .fab-refresh.loading {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .fab-dark {
+            background: linear-gradient(135deg, var(--primary-dark), var(--accent-navy));
+        }
+
+        .report-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: var(--warm-white);
+            border-radius: 20px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .dark .report-container {
+            background: #1a202c;
+            border: 1px solid #2d3748;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--accent-navy) 50%, var(--primary-blue) 100%);
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M50 20c-16.569 0-30 13.431-30 30s13.431 30 30 30 30-13.431 30-30-13.431-30-30-30zm0 10c11.046 0 20 8.954 20 20s-8.954 20-20 20-20-8.954-20-20 8.954-20 20-20z'/%3E%3C/g%3E%3C/svg%3E") repeat;
+            animation: float 30s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateX(0) translateY(0); }
+            25% { transform: translateX(-20px) translateY(-10px); }
+            50% { transform: translateX(20px) translateY(-20px); }
+            75% { transform: translateX(-10px) translateY(-15px); }
+            100% { transform: translateX(0) translateY(0); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 3;
+        }
+
+        .main-title {
+            font-size: clamp(28px, 5vw, 48px);
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-size: clamp(16px, 3vw, 22px);
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        .date-info {
+            background: linear-gradient(135deg, rgba(214, 158, 46, 0.9), rgba(214, 158, 46, 0.7));
+            padding: 15px 30px;
+            border-radius: 50px;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .date-text {
+            color: #ffffff;
+            font-size: clamp(14px, 2.5vw, 18px);
+            font-weight: 700;
+        }
+
+        .students-grid {
+            padding: 40px 30px;
+        }
+
+        .student-section {
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .student-section:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .student-section:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .student-section:last-child {
+            margin-bottom: 0;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .student-main-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            border-radius: 20px;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .student-main-header:hover {
+            transform: translateY(-5px);
+        }
+
+        .student-section:nth-child(1) .student-main-header {
+            background: linear-gradient(135deg, var(--accent-emerald), var(--accent-teal));
+        }
+
+        .student-section:nth-child(2) .student-main-header {
+            background: linear-gradient(135deg, var(--accent-navy), var(--primary-blue));
+        }
+
+        .student-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .student-avatar:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .student-name {
+            font-size: clamp(20px, 4vw, 28px);
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .student-title {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: clamp(14px, 2vw, 16px);
+            font-weight: 600;
+        }
+
+        .columns-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .column-header {
+            text-align: center;
+            padding: 15px;
+            border-radius: 15px;
+            color: white;
+            font-size: clamp(16px, 3vw, 20px);
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .column-header:hover {
+            transform: translateY(-3px);
+        }
+
+        .memorization-header {
+            background: linear-gradient(135deg, var(--accent-gold), #ecc94b);
+        }
+
+        .review-header {
+            background: linear-gradient(135deg, var(--accent-emerald), var(--accent-teal));
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .mobile-section-header {
+            display: none;
+        }
+
+        .content-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dark .content-card {
+            background: linear-gradient(145deg, #2d3748 0%, #1a202c 100%);
+            color: white;
+        }
+
+        .content-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+        }
+
+        .memorization-card {
+            border-color: var(--accent-gold);
+        }
+
+        .review-card {
+            border-color: var(--accent-emerald);
+        }
+
+        .content-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+        }
+
+        .memorization-card::before {
+            background: linear-gradient(90deg, var(--accent-gold), #ecc94b);
+        }
+
+        .review-card::before {
+            background: linear-gradient(90deg, var(--accent-emerald), var(--accent-teal));
+        }
+
+        .content-icon {
+            font-size: 30px;
+            margin-bottom: 15px;
+            color: var(--primary-dark);
+            transition: transform 0.3s ease;
+        }
+
+        .dark .content-icon {
+            color: #e2e8f0;
+        }
+
+        .content-card:hover .content-icon {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .content-text {
+            font-size: clamp(16px, 2.5vw, 18px);
+            font-weight: 700;
+            color: var(--primary-dark);
+            line-height: 1.6;
+        }
+
+        .dark .content-text {
+            color: #e2e8f0;
+        }
+
+        .surah-name {
+            color: var(--accent-emerald);
+            font-weight: 800;
+            font-size: clamp(18px, 3vw, 20px);
+        }
+
+        .memorization-card .surah-name {
+            color: var(--accent-gold);
+        }
+
+        .notes-section {
+            padding: 25px;
+            border-radius: 20px;
+            position: relative;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .notes-section:hover {
+            transform: translateX(5px);
+        }
+
+        .student-section:nth-child(1) .notes-section {
+            background: linear-gradient(135deg, rgba(56, 161, 105, 0.1), rgba(49, 151, 149, 0.1));
+            border-right: 6px solid var(--accent-emerald);
+        }
+
+        .student-section:nth-child(2) .notes-section {
+            background: linear-gradient(135deg, rgba(44, 82, 130, 0.1), rgba(45, 55, 72, 0.1));
+            border-right: 6px solid var(--accent-navy);
+        }
+
+        .dark .notes-section {
+            background: rgba(45, 55, 72, 0.3);
+        }
+
+        .notes-title {
+            font-size: clamp(16px, 2.5vw, 18px);
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary-dark);
+        }
+
+        .dark .notes-title {
+            color: #e2e8f0;
+        }
+
+        .notes-text {
+            color: #4a5568;
+            line-height: 1.8;
+            font-size: clamp(14px, 2vw, 16px);
+            font-weight: 500;
+        }
+
+        .dark .notes-text {
+            color: #cbd5e0;
+        }
+
+        .footer {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-blue) 100%);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .footer-text {
+            font-size: clamp(16px, 2.5vw, 18px);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .footer-date {
+            font-size: clamp(12px, 2vw, 14px);
+            opacity: 0.8;
+            font-weight: 500;
+        }
+
+        .update-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--accent-emerald);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            z-index: 1500;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .update-status.show {
+            transform: translateX(0);
+        }
+
+        .update-status.error {
+            background: var(--danger-red);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .students-grid {
+                padding: 20px 15px;
+            }
+            
+            .columns-container {
+                display: none;
+            }
+            
+            .content-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .memorization-section {
+                order: 1;
+            }
+            
+            .review-section {
+                order: 2;
+            }
+            
+            .mobile-section-header {
+                display: block;
+                text-align: center;
+                padding: 15px;
+                border-radius: 15px;
+                color: white;
+                font-size: clamp(16px, 3vw, 20px);
+                font-weight: 700;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+                margin-bottom: 15px;
+                transition: transform 0.3s ease;
+            }
+            
+            .mobile-section-header:hover {
+                transform: translateY(-3px);
+            }
+            
+            .mobile-memorization-header {
+                background: linear-gradient(135deg, var(--accent-gold), #ecc94b);
+            }
+            
+            .mobile-review-header {
+                background: linear-gradient(135deg, var(--accent-emerald), var(--accent-teal));
+            }
+            
+            .content-card {
+                padding: 20px;
+                min-height: 150px;
+                margin-bottom: 20px;
+            }
+
+            .fab-container {
+                bottom: 20px;
+                left: 20px;
+            }
+
+            .fab {
+                width: 50px;
+                height: 50px;
+                font-size: 18px;
+            }
+        }
+
+        @media print {
+            body {
+                background: white !important;
+                padding: 0 !important;
+            }
+            
+            .report-container {
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                background: white !important;
+            }
+
+            .fab-container {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Update Status -->
+    <div class="update-status" id="updateStatus">
+        <i class="fas fa-check-circle"></i>
+        <span>تم التحديث بنجاح</span>
+    </div>
+
+    <!-- Floating Action Buttons -->
+    <div class="fab-container">
+        <button class="fab fab-print" title="طباعة التقرير" onclick="printReport()">
+            <i class="fas fa-print"></i>
+        </button>
+        <button class="fab fab-refresh" title="تحديث البيانات" onclick="refreshData()">
+            <i class="fas fa-sync-alt"></i>
+        </button>
+        <button class="fab fab-dark" title="تبديل الوضع" onclick="toggleDarkMode()">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+
+    <div class="report-container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="header-content">
+                <h1 class="main-title">
+                    <i class="fas fa-mosque"></i>
+                    قرآننا حياتنا
+                </h1>
+                <p class="subtitle">برنامج المتابعة اليومية في حفظ  القرآن </p>
+                <div class="date-info">
+                    <span class="date-text">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span id="currentDate"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Students Grid -->
+        <div class="students-grid">
+            <!-- Student 1 -->
+            <div class="student-section">
+                <div class="student-main-header">
+                    <div class="student-avatar">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h2 class="student-name" id="student1Name">عبد الرحمن البسام</h2>
+                    <p class="student-title">طالب القرآن الكريم</p>
+                </div>
+
+                <div class="columns-container">
+                    <div class="column-header memorization-header">
+                        <i class="fas fa-star"></i>
+                        الحفظ الجديد
+                    </div>
+                    <div class="column-header review-header">
+                        <i class="fas fa-redo"></i>
+                        المراجعة
+                    </div>
+                </div>
+
+                <div class="content-grid">
+                    <div class="memorization-section">
+                        <div class="mobile-section-header mobile-memorization-header">
+                            <i class="fas fa-star"></i>
+                            الحفظ الجديد
+                        </div>
+                        <div class="content-card memorization-card">
+                            <div class="content-icon">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                            <div class="content-text" id="student1MemorizationContent">
+                                سورة <span class="surah-name" id="student1MemorizationSurah">القمر</span><br>
+                                من الآية <span id="student1MemorizationFrom">1</span> إلى الآية <span id="student1MemorizationTo">5</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="review-section">
+                        <div class="mobile-section-header mobile-review-header">
+                            <i class="fas fa-redo"></i>
+                            المراجعة
+                        </div>
+                        <div class="content-card review-card">
+                            <div class="content-icon">
+                                <i class="fas fa-bookmark"></i>
+                            </div>
+                            <div class="content-text" id="student1ReviewContent">
+                                سورة <span class="surah-name" id="student1ReviewSurah">الفجر</span><br>
+                                من الآية <span id="student1ReviewFrom">15</span> إلى الآية <span id="student1ReviewTo">30</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notes-section">
+                    <h3 class="notes-title">
+                        <i class="fas fa-sticky-note"></i>
+                        ملاحظات المعلم
+                    </h3>
+                    <p class="notes-text" id="student1Notes">أداء ممتاز في الحفظ، تحسن ملحوظ في التجويد</p>
+                </div>
+            </div>
+
+            <!-- Student 2 -->
+            <div class="student-section">
+                <div class="student-main-header">
+                    <div class="student-avatar">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h2 class="student-name" id="student2Name">عبد الله البسام</h2>
+                    <p class="student-title">طالب القرآن الكريم</p>
+                </div>
+
+                <div class="columns-container">
+                    <div class="column-header memorization-header">
+                        <i class="fas fa-star"></i>
+                        الحفظ الجديد
+                    </div>
+                    <div class="column-header review-header">
+                        <i class="fas fa-redo"></i>
+                        المراجعة
+                    </div>
+                </div>
+
+                <div class="content-grid">
+                    <div class="memorization-section">
+                        <div class="mobile-section-header mobile-memorization-header">
+                            <i class="fas fa-star"></i>
+                            الحفظ الجديد
+                        </div>
+                        <div class="content-card memorization-card">
+                            <div class="content-icon">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                            <div class="content-text" id="student2MemorizationContent">
+                                <span id="student2MemorizationDisplay">لا يوجد حفظ جديد اليوم</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="review-section">
+                        <div class="mobile-section-header mobile-review-header">
+                            <i class="fas fa-redo"></i>
+                            المراجعة
+                        </div>
+                        <div class="content-card review-card">
+                            <div class="content-icon">
+                                <i class="fas fa-bookmark"></i>
+                            </div>
+                            <div class="content-text" id="student2ReviewContent">
+                                <span class="surah-name" id="student2ReviewSurah">جزء عم</span><br>
+                                من سورة <span id="student2ReviewFrom">الضحى</span> إلى سورة <span id="student2ReviewTo">الشمس</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notes-section">
+                    <h3 class="notes-title">
+                        <i class="fas fa-sticky-note"></i>
+                        ملاحظات المعلم
+                    </h3>
+                    <p class="notes-text" id="student2Notes">حفظ جيد ومراجعة منتظمة</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="footer-text">
+                <i class="fas fa-mosque"></i>
+                وفقنا الله وإياكم لحفظ كتابة والعمل به . الأستاذ / إبراهيم
+            </p>
+            <p class="footer-date" id="footerDate">
+                تاريخ الإنشاء: <span id="creationDate"></span>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // ============== ضع رابط GitHub Gist هنا ==============
+        const DATA_SOURCE_URL = 'https://gist.githubusercontent.com/ibraheam025-png/f8aa5d614c36bb1921582922c0988230/raw/0ce8c42eb4ce04ca53472fe04e6939549a04d68a/students-data.json';
+        
+        // البيانات الافتراضية
+        let studentsData = {
+            student1: {
+                name: "عبد الرحمن البسام",
+                memorization: { surah: "القمر", from: "1", to: "5" },
+                review: { surah: "الفجر", from: "15", to: "30" },
+                notes: "أداء ممتاز في الحفظ، تحسن ملحوظ في التجويد"
+            },
+            student2: {
+                name: "عبد الله البسام",
+                memorization: { surah: "", from: "0", to: "0" },
+                review: { surah: "جزء عم", from: "الضحى", to: "الشمس" },
+                notes: "حفظ جيد ومراجعة منتظمة"
+            },
+            date: { day: "الأحد", date: "2025/09/28" }
+        };
+
+        // Dark mode support
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        function initializeDates() {
+            document.getElementById('currentDate').textContent = `${studentsData.date.day} - ${studentsData.date.date}`;
+            const now = new Date();
+            const creationDate = now.toLocaleDateString('ar-SA') + ' - ' + now.toLocaleTimeString('ar-SA');
+            document.getElementById('creationDate').textContent = creationDate;
+        }
+
+        function updateDisplay() {
+            document.getElementById('student1Name').textContent = studentsData.student1.name;
+            document.getElementById('student1MemorizationSurah').textContent = studentsData.student1.memorization.surah;
+            document.getElementById('student1MemorizationFrom').textContent = studentsData.student1.memorization.from;
+            document.getElementById('student1MemorizationTo').textContent = studentsData.student1.memorization.to;
+            document.getElementById('student1ReviewSurah').textContent = studentsData.student1.review.surah;
+            document.getElementById('student1ReviewFrom').textContent = studentsData.student1.review.from;
+            document.getElementById('student1ReviewTo').textContent = studentsData.student1.review.to;
+            document.getElementById('student1Notes').textContent = studentsData.student1.notes;
+            
+            document.getElementById('student2Name').textContent = studentsData.student2.name;
+            
+            if (!studentsData.student2.memorization.surah || 
+                studentsData.student2.memorization.from === "0" || 
+                studentsData.student2.memorization.to === "0") {
+                document.getElementById('student2MemorizationDisplay').textContent = "لا يوجد حفظ جديد اليوم";
+            } else {
+                document.getElementById('student2MemorizationDisplay').innerHTML = `
+                    سورة <span class="surah-name">${studentsData.student2.memorization.surah}</span><br>
+                    من الآية ${studentsData.student2.memorization.from} إلى الآية ${studentsData.student2.memorization.to}
+                `;
+            }
+            
+            document.getElementById('student2ReviewSurah').textContent = studentsData.student2.review.surah;
+            document.getElementById('student2ReviewFrom').textContent = studentsData.student2.review.from;
+            document.getElementById('student2ReviewTo').textContent = studentsData.student2.review.to;
+            document.getElementById('student2Notes').textContent = studentsData.student2.notes;
+            document.getElementById('currentDate').textContent = `${studentsData.date.day} - ${studentsData.date.date}`;
+        }
+
+        async function refreshData() {
+            if (DATA_SOURCE_URL === 'YOUR_GITHUB_GIST_RAW_URL_HERE') {
+                showUpdateStatus('يرجى إعداد مصدر البيانات أولاً', 'error');
+                return;
+            }
+
+            const refreshBtn = document.querySelector('.fab-refresh');
+            const refreshIcon = refreshBtn.querySelector('i');
+            
+            try {
+                refreshBtn.classList.add('loading');
+                refreshIcon.className = 'fas fa-spinner fa-spin';
+                
+                const response = await fetch(DATA_SOURCE_URL + '?t=' + Date.now());
+                
+                if (!response.ok) {
+                    throw new Error('فشل في جلب البيانات');
+                }
+                
+                const newData = await response.json();
+                studentsData = newData;
+                updateDisplay();
+                showUpdateStatus('تم تحديث البيانات بنجاح!', 'success');
+                
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                showUpdateStatus('خطأ في تحديث البيانات: ' + error.message, 'error');
+            } finally {
+                refreshBtn.classList.remove('loading');
+                refreshIcon.className = 'fas fa-sync-alt';
+            }
+        }
+
+        function showUpdateStatus(message, type = 'success') {
+            const statusElement = document.getElementById('updateStatus');
+            const icon = statusElement.querySelector('i');
+            const text = statusElement.querySelector('span');
+            
+            text.textContent = message;
+            
+            if (type === 'error') {
+                statusElement.classList.add('error');
+                icon.className = 'fas fa-exclamation-circle';
+            } else {
+                statusElement.classList.remove('error');
+                icon.className = 'fas fa-check-circle';
+            }
+            
+            statusElement.classList.add('show');
+            setTimeout(() => {
+                statusElement.classList.remove('show');
+            }, 4000);
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            const darkIcon = document.querySelector('.fab-dark i');
+            if (document.documentElement.classList.contains('dark')) {
+                darkIcon.className = 'fas fa-sun';
+            } else {
+                darkIcon.className = 'fas fa-moon';
+            }
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        window.addEventListener('DOMContentLoaded', function() {
+            initializeDates();
+            updateDisplay();
+            
+            if (DATA_SOURCE_URL !== 'YOUR_GITHUB_GIST_RAW_URL_HERE') {
+                setInterval(refreshData, 5 * 60 * 1000); // تحديث كل 5 دقائق
+            }
+        });
+    </script>
+</body>
+</html>
