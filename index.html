@@ -20,6 +20,8 @@
             --warm-white: #fffffe;
             --danger-red: #e53e3e;
             --success-green: #38a169;
+            --accent-purple: #805ad5;
+            --accent-orange: #dd6b20;
         }
 
         .dark {
@@ -70,11 +72,29 @@
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
             border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .fab:hover::before {
+            transform: translateX(100%);
         }
 
         .fab:hover {
-            transform: scale(1.1);
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+            transform: scale(1.1) translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
         }
 
         .fab-print {
@@ -226,7 +246,7 @@
         }
 
         .student-section:nth-child(2) .student-main-header {
-            background: linear-gradient(135deg, var(--accent-navy), var(--primary-blue));
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-navy));
         }
 
         .student-avatar {
@@ -392,6 +412,12 @@
             color: var(--accent-gold);
         }
 
+        .no-memorization {
+            color: #a0aec0;
+            font-style: italic;
+            font-size: clamp(14px, 2vw, 16px);
+        }
+
         .notes-section {
             padding: 25px;
             border-radius: 20px;
@@ -410,8 +436,8 @@
         }
 
         .student-section:nth-child(2) .notes-section {
-            background: linear-gradient(135deg, rgba(44, 82, 130, 0.1), rgba(45, 55, 72, 0.1));
-            border-right: 6px solid var(--accent-navy);
+            background: linear-gradient(135deg, rgba(128, 90, 213, 0.1), rgba(44, 82, 130, 0.1));
+            border-right: 6px solid var(--accent-purple);
         }
 
         .dark .notes-section {
@@ -589,7 +615,7 @@
         <button class="fab fab-print" title="طباعة التقرير" onclick="printReport()">
             <i class="fas fa-print"></i>
         </button>
-        <button class="fab fab-refresh" title="تحديث البيانات" onclick="refreshData()">
+        <button class="fab fab-refresh" title="تحديث الصفحة" onclick="refreshPage()">
             <i class="fas fa-sync-alt"></i>
         </button>
         <button class="fab fab-dark" title="تبديل الوضع" onclick="toggleDarkMode()">
@@ -710,12 +736,12 @@
                         <div class="content-card memorization-card">
                             <div class="content-icon">
                                 <i class="fas fa-book-open"></i>
-                            <div class="content-text" id="student1MemorizationContent">
-                                سورة <span class="surah-name" id="student1MemorizationSurah">يس</span><br>
-                                من الآية <span id="student1MemorizationFrom">28</span> إلى الآية <span id="student1MemorizationTo">33</span>
-                                 <div class="content-text" id="student1MemorizationContent">
-                                سورة <span class="surah-name" id="student1MemorizationSurah">الممتحنة</span><br>
-                                من الآية <span id="student1MemorizationFrom">10</span> إلى الآية <span id="student1MemorizationTo">13</span>
+                            </div>
+                            <div class="content-text" id="student2MemorizationDisplay">
+                                سورة <span class="surah-name" id="student2MemorizationSurah">يس</span><br>
+                                من الآية <span id="student2MemorizationFrom">28</span> إلى الآية <span id="student2MemorizationTo">33</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="review-section">
                         <div class="mobile-section-header mobile-review-header">
@@ -757,8 +783,7 @@
     </div>
 
     <script>
-        // ============== ضع رابط GitHub Gist هنا ==============
-        const DATA_SOURCE_URL = 'https://gist.githubusercontent.com/ibraheam025-png/f8aa5d614c36bb1921582922c0988230/raw/0ce8c42eb4ce04ca53472fe04e6939549a04d68a/students-data.json';
+        // ============== البيانات محدثة تلقائياً عبر GitHub & Netlify ==============
         
         // البيانات الافتراضية
         let studentsData = {
@@ -770,8 +795,8 @@
             },
             student2: {
                 name: "عبد الله البسام",
-                memorization: { surah: "", from: "0", to: "0" },
-                review: { surah: "جزء عم", from: "الضحى", to: "الشمس" },
+                memorization: { surah: "يس", from: "28", to: "33" },
+                review: { surah: "جزء عم", from: "البلد", to: "الفجر" },
                 notes: "حفظ جيد ومراجعة منتظمة"
             },
             date: { day: "الأحد", date: "2025/09/28" }
@@ -797,6 +822,7 @@
         }
 
         function updateDisplay() {
+            // Student 1
             document.getElementById('student1Name').textContent = studentsData.student1.name;
             document.getElementById('student1MemorizationSurah').textContent = studentsData.student1.memorization.surah;
             document.getElementById('student1MemorizationFrom').textContent = studentsData.student1.memorization.from;
@@ -806,17 +832,27 @@
             document.getElementById('student1ReviewTo').textContent = studentsData.student1.review.to;
             document.getElementById('student1Notes').textContent = studentsData.student1.notes;
             
+            // Student 2
             document.getElementById('student2Name').textContent = studentsData.student2.name;
             
+            // Handle Student 2 Memorization
             if (!studentsData.student2.memorization.surah || 
                 studentsData.student2.memorization.from === "0" || 
                 studentsData.student2.memorization.to === "0") {
-                document.getElementById('student2MemorizationDisplay').textContent = "لا يوجد حفظ جديد اليوم";
+                document.getElementById('student2MemorizationDisplay').innerHTML = `
+                    <div class="no-memorization">
+                        <i class="fas fa-pause-circle"></i><br>
+                        لا يوجد حفظ جديد اليوم
+                    </div>
+                `;
             } else {
                 document.getElementById('student2MemorizationDisplay').innerHTML = `
                     سورة <span class="surah-name">${studentsData.student2.memorization.surah}</span><br>
                     من الآية ${studentsData.student2.memorization.from} إلى الآية ${studentsData.student2.memorization.to}
                 `;
+                document.getElementById('student2MemorizationSurah').textContent = studentsData.student2.memorization.surah;
+                document.getElementById('student2MemorizationFrom').textContent = studentsData.student2.memorization.from;
+                document.getElementById('student2MemorizationTo').textContent = studentsData.student2.memorization.to;
             }
             
             document.getElementById('student2ReviewSurah').textContent = studentsData.student2.review.surah;
@@ -826,37 +862,21 @@
             document.getElementById('currentDate').textContent = `${studentsData.date.day} - ${studentsData.date.date}`;
         }
 
-        async function refreshData() {
-            if (DATA_SOURCE_URL === 'YOUR_GITHUB_GIST_RAW_URL_HERE') {
-                showUpdateStatus('يرجى إعداد مصدر البيانات أولاً', 'error');
-                return;
-            }
-
+        function refreshPage() {
             const refreshBtn = document.querySelector('.fab-refresh');
             const refreshIcon = refreshBtn.querySelector('i');
             
-            try {
-                refreshBtn.classList.add('loading');
-                refreshIcon.className = 'fas fa-spinner fa-spin';
-                
-                const response = await fetch(DATA_SOURCE_URL + '?t=' + Date.now());
-                
-                if (!response.ok) {
-                    throw new Error('فشل في جلب البيانات');
-                }
-                
-                const newData = await response.json();
-                studentsData = newData;
-                updateDisplay();
-                showUpdateStatus('تم تحديث البيانات بنجاح!', 'success');
-                
-            } catch (error) {
-                console.error('Error refreshing data:', error);
-                showUpdateStatus('خطأ في تحديث البيانات: ' + error.message, 'error');
-            } finally {
-                refreshBtn.classList.remove('loading');
-                refreshIcon.className = 'fas fa-sync-alt';
-            }
+            // تأثير بصري للتحديث
+            refreshBtn.classList.add('loading');
+            refreshIcon.className = 'fas fa-spinner fa-spin';
+            
+            // عرض رسالة التحديث
+            showUpdateStatus('جاري تحديث الصفحة...', 'success');
+            
+            // تأخير بسيط للتأثير البصري ثم إعادة تحميل الصفحة
+            setTimeout(() => {
+                window.location.reload();
+            }, 800);
         }
 
         function showUpdateStatus(message, type = 'success') {
@@ -897,12 +917,7 @@
         window.addEventListener('DOMContentLoaded', function() {
             initializeDates();
             updateDisplay();
-            
-            if (DATA_SOURCE_URL !== 'YOUR_GITHUB_GIST_RAW_URL_HERE') {
-                setInterval(refreshData, 5 * 60 * 1000); // تحديث كل 5 دقائق
-            }
         });
     </script>
 </body>
-
 </html>
